@@ -22,6 +22,9 @@
 	import { browser } from "$app/environment";
 	import { initStores as initAnimStores } from "$lib/util/animation.js";
 	import { VertdInstance } from "$lib/sections/settings/vertdSettings.svelte.js";
+	import { ToastManager } from "$lib/util/toast.svelte.js";
+	import { m } from "$lib/paraglide/messages.js";
+	import { log } from "$lib/util/logger.js";
 
 	let { children, data } = $props();
 	let enablePlausible = $state(false);
@@ -90,6 +93,16 @@
 				.then((res) => {
 					if (res.ok) $vertdLoaded = true;
 				});
+		}
+
+		// detect if insecure context
+		if (!window.isSecureContext) {
+			log(["layout"], "Insecure context (HTTP) detected, some features may not work as expected -- you may want to enable \"PUB_DISABLE_FAILURE_BLOCKS\" on local deployments.");
+			ToastManager.add({
+				type: "warning",
+				message: m["toast.insecure_context"](),
+				disappearing: false,
+			});
 		}
 
 		return () => {
